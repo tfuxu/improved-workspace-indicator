@@ -14,6 +14,9 @@ let WorkspaceIndicator = GObject.registerClass(
       this.active = active;
       this.workspace = workspace;
       this.skip_taskbar_mode = skip_taskbar_mode;
+      this.gnome_wm_settings = new Gio.Settings({
+        settings_id: "org.gnome.desktop.wm.preferences",
+      });
 
       // setup widgets
       this._widget = new St.Widget({
@@ -22,11 +25,21 @@ let WorkspaceIndicator = GObject.registerClass(
         y_expand: false,
       });
 
-      this._statusLabel = new St.Label({
-        style_class: "panel-workspace-indicator",
-        y_align: Clutter.ActorAlign.CENTER,
-        text: `${this.workspace.index() + 1}`,
-      });
+      let names_array = this.gnome_wm_settings.get_strv("workspace-names");
+      log(names_array);
+      if (this.settings.get_boolean("enable-workspace-names") !== false) {
+        this._statusLabel = new St.Label({
+          style_class: "panel-workspace-indicator",
+          y_align: Clutter.ActorAlign.CENTER,
+          text: names_array[this.workspace.index()],
+        });
+      } else {
+        this._statusLabel = new St.Label({
+          style_class: "panel-workspace-indicator",
+          y_align: Clutter.ActorAlign.CENTER,
+          text: `${this.workspace.index() + 1}`, //TODO: Here is text put in indicators
+        });
+      }
 
       if (this.active) {
         this._statusLabel.add_style_class_name("workspace-indicator-active");
@@ -122,6 +135,12 @@ class WorkspaceLayout {
         this.add_panel_button();
       }
     );
+    this._enableWorkspaceNamesId = this.settings.connect(
+      "changed::enable-workspace-names",
+      () => {
+        this.add_panel_button();
+      }
+    );
 
     this.add_panel_button();
   }
@@ -135,6 +154,7 @@ class WorkspaceLayout {
     this.settings.disconnect(this._panelPositionChangedId);
     this.settings.disconnect(this._skipTaskbarModeChangedId);
     this.settings.disconnect(this._changeOnClickChangedId);
+    this.settings.disconnect(this._enableWorkspaceNamesId);
   }
 
   add_panel_button() {

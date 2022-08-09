@@ -24,5 +24,12 @@
         Set to true to change to the workspace number on indicator click. Set to false to disable any action on click.
       </description>
     </key>
+    <key name="enable-workspace-names" type="b">
+      <default>false</default>
+      <summary>Change Workspaces on indicator click.</summary>
+      <description>
+        Set to true to enable custom workspace name for each workspace indicator. Set to false to restore default workspace numbers.
+      </description>
+    </key>
   </schema>
 </schemalist>

@@ -1,5 +1,6 @@
 .panel-workspace-indicator {
-  padding: 0 6px;
+  padding: 1px 6px 0;
+  height: 20px;
 }
 
 .panel-workspace-indicator-box {

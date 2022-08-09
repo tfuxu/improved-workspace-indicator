@@ -14,8 +14,9 @@ let WorkspaceIndicator = GObject.registerClass(
       this.active = active;
       this.workspace = workspace;
       this.skip_taskbar_mode = skip_taskbar_mode;
-      this.gnome_wm_settings = new Gio.Settings({
-        settings_id: "org.gnome.desktop.wm.preferences",
+      this.settings = ExtensionUtils.getSettings();
+      this.gnome_wm_prefs = new Gio.Settings({
+        schema_id: "org.gnome.desktop.wm.preferences",
       });
 
       // setup widgets
@@ -25,19 +26,18 @@ let WorkspaceIndicator = GObject.registerClass(
         y_expand: false,
       });
 
-      let names_array = this.gnome_wm_settings.get_strv("workspace-names");
-      log(names_array);
+      let names_array = this.gnome_wm_prefs.get_strv("workspace-names");
       if (this.settings.get_boolean("enable-workspace-names") !== false) {
         this._statusLabel = new St.Label({
           style_class: "panel-workspace-indicator",
           y_align: Clutter.ActorAlign.CENTER,
-          text: names_array[this.workspace.index()],
+          text: this.workspace.index() + 1 <= names_array.length ? names_array[this.workspace.index()] : `${this.workspace.index() + 1}`,
         });
       } else {
         this._statusLabel = new St.Label({
           style_class: "panel-workspace-indicator",
           y_align: Clutter.ActorAlign.CENTER,
-          text: `${this.workspace.index() + 1}`, //TODO: Here is text put in indicators
+          text: `${this.workspace.index() + 1}`,
         });
       }
 
